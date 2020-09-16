@@ -37,7 +37,21 @@ def busca_aluno(mat)
     return a
 end
 
-
+#funcao que adiciona o novo email criado no arquivo csv
+def edit_uffmail(mat, uffmail)
+    db_aluno = CSV.parse(File.read("alunos.csv"), headers: true)
+    for i in 0..(db_aluno.length - 1)
+        if db_aluno[i]["matricula"] == mat
+            db_aluno[i]["uffmail"] = uffmail
+        end
+    end
+    #como o parse tira o header do arquivo, foi necessario adicionar o header manualmente
+    f_aluno = CSV.open("alunos.csv",'w')
+    f_aluno << ["nome","matricula","telefone","email","uffmail","status"]
+    f_aluno.close
+    #adiciona todo o conteudo da table db_aluno no arquivo csv
+    File.open("alunos.csv",'a'){ |f| f << db_aluno.map(&:to_csv).join }
+end
 
 #gera lista de uffmails a serem escolhidos pelo usuario
 def gerar_lista_uffmail(nome)
@@ -79,6 +93,9 @@ def criar_uffmail()
         break if op > 0 and op <= lista_emails.length
         end
         aluno.uffmail = lista_emails[op-1]
+        
+        edit_uffmail(aluno.matricula, aluno.uffmail)
+
         puts "A criação do seu email (#{aluno.uffmail}) será feita nos próximos minutos."
         puts "Um SMS foi enviado para #{aluno.telefone} com a sua senha de acesso"
 
